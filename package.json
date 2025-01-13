@@ -1,0 +1,12 @@
+{
+  "name": "olydown",
+  "version": "1.0.0",
+  "description": "WiFi Image Downloader for Olympus cameras",
+  "main": "index.js",
+  "scripts": {
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev": "wails dev"
+  },
+  "author": "Ian Baron",
+  "license": "ISC"
+}

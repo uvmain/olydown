@@ -5,6 +5,7 @@ import (
 	"embed"
 	"log"
 	"olydown/logic"
+	"olydown/types"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -54,10 +55,10 @@ func (b *App) PopulateImages() []string {
 	return response
 }
 
-func (b *App) GetImageScreennail(filename string) (string, error) {
+func (b *App) GetImageScreennail(filename string) (types.ImageResponse, error) {
 	response, err := logic.GetImageScreennail(filename)
 	if err != nil {
-		return "", err
+		return types.ImageResponse{}, err
 	}
 	return response, nil
 }

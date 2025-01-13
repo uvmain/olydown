@@ -1,11 +1,15 @@
 package logic
 
 import (
+	"bytes"
 	"encoding/base64"
 	"fmt"
 	"io"
 	"net/http"
+	"olydown/types"
 	"strings"
+
+	"github.com/rwcarlsen/goexif/exif"
 )
 
 var cachedDcimFolder string
@@ -80,15 +84,47 @@ func GetImageList() ([]string, error) {
 	return imageList, nil
 }
 
-func GetImageScreennail(filename string) (string, error) {
+func GetImageScreennail(filename string) (types.ImageResponse, error) {
 	dcimFolder, _ := getDcimFolder()
 	url := fmt.Sprintf("http://192.168.0.10/get_screennail.cgi?DIR=/DCIM/%s/%s", dcimFolder, filename)
 	response, err := fetchBytes(url)
 
 	if err != nil {
-		return "", err
+		return types.ImageResponse{}, err
 	}
 
 	base64Response := base64.StdEncoding.EncodeToString(response)
-	return base64Response, nil
+	orientation, _ := GetOrientation(filename)
+
+	imageResponse := types.ImageResponse{
+		Base64string: base64Response,
+		Orientation:  orientation,
+	}
+	return imageResponse, nil
+}
+
+func GetOrientation(filename string) (string, error) {
+	dcimFolder, _ := getDcimFolder()
+	url := fmt.Sprintf("http://192.168.0.10/get_exif.cgi?DIR=/DCIM/%s/%s", dcimFolder, filename)
+	response, err := http.Get(url)
+	if err != nil {
+		return "", err
+	}
+	defer response.Body.Close()
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(response.Body)
+	exifData := buf.Bytes()
+
+	exifInfo, err := exif.Decode(bytes.NewReader(exifData))
+	if err != nil {
+		return "", err
+	}
+
+	orientation, _ := exifInfo.Get(exif.Orientation)
+
+	if orientation.String() == "8" {
+		return "90", nil
+	}
+
+	return "0", nil
 }
