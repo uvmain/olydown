@@ -4,8 +4,15 @@
     "dictionaryDefinitions": [],
     "dictionaries": [],
     "words": [
-        "dcim"
+        "assetserver",
+        "dcim",
+        "olydown",
+        "Screennail",
+        "wailsapp",
+        "wailsjs"
     ],
-    "ignoreWords": [],
+    "ignoreWords": [
+        "outputfilename"
+    ],
     "import": []
 }

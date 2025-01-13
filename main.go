@@ -46,10 +46,18 @@ func (b *App) startup(ctx context.Context) {
 
 func (b *App) shutdown(ctx context.Context) {}
 
-func (b *App) PopulateImages() string {
+func (b *App) PopulateImages() []string {
 	response, err := logic.GetImageList()
 	if err != nil {
 		return response
 	}
 	return response
+}
+
+func (b *App) GetImageScreennail(filename string) (string, error) {
+	response, err := logic.GetImageScreennail(filename)
+	if err != nil {
+		return "", err
+	}
+	return response, nil
 }
