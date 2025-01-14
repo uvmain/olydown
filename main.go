@@ -88,3 +88,11 @@ func (b *App) GetSSID() (string, error) {
 	}
 	return response, nil
 }
+
+func (b *App) GetDcimFolder() (string, error) {
+	response, err := logic.GetDcimFolder()
+	if err != nil {
+		return "", err
+	}
+	return response, nil
+}

@@ -19,6 +19,7 @@
         "vueuse",
         "wailsapp",
         "wailsjs",
+        "wifi",
         "wlan"
     ],
     "ignoreWords": [

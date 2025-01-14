@@ -50,7 +50,7 @@ func fetchBytes(requestUrl string) ([]byte, error) {
 	return resBody, nil
 }
 
-func getDcimFolder() (string, error) {
+func GetDcimFolder() (string, error) {
 	if len(cachedDcimFolder) > 0 {
 		return cachedDcimFolder, nil
 	}
@@ -66,7 +66,7 @@ func getDcimFolder() (string, error) {
 
 func GetImageList() ([]string, error) {
 	var imageList []string
-	dcimFolder, err := getDcimFolder()
+	dcimFolder, err := GetDcimFolder()
 	if err != nil {
 		return []string{}, err
 	}
@@ -85,7 +85,7 @@ func GetImageList() ([]string, error) {
 }
 
 func GetImageThumbnail(filename string) (types.ImageResponse, error) {
-	dcimFolder, _ := getDcimFolder()
+	dcimFolder, _ := GetDcimFolder()
 	url := fmt.Sprintf("http://192.168.0.10/get_thumbnail.cgi?DIR=/DCIM/%s/%s", dcimFolder, filename)
 	response, err := fetchBytes(url)
 
@@ -104,7 +104,7 @@ func GetImageThumbnail(filename string) (types.ImageResponse, error) {
 }
 
 func GetOrientation(filename string) (string, error) {
-	dcimFolder, _ := getDcimFolder()
+	dcimFolder, _ := GetDcimFolder()
 	url := fmt.Sprintf("http://192.168.0.10/get_exif.cgi?DIR=/DCIM/%s/%s", dcimFolder, filename)
 	response, err := http.Get(url)
 	if err != nil {

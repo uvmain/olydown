@@ -49,7 +49,6 @@ func GetSSID() (string, error) {
 	var gotSSID string
 	var err error
 	currentOs := osRuntime.GOOS
-	log.Printf("current OS: %s", currentOs)
 
 	switch currentOs {
 	case "darwin":
@@ -61,7 +60,6 @@ func GetSSID() (string, error) {
 	default:
 		gotSSID, err = "", fmt.Errorf("unsupported platform: %s", osRuntime.GOOS)
 	}
-	log.Printf("ssid: %s", gotSSID)
 	return gotSSID, err
 }
 
@@ -91,7 +89,8 @@ func getSSIDLinux() (string, error) {
 	return strings.TrimSpace(string(out)), nil
 }
 
-var windowsRegex = regexp.MustCompile(`\s+SSID\s+:\s+(.*)`)
+var windowsSsidRegex = regexp.MustCompile(`SSID\s*:\s*(.*)`)
+var windowsConnectedRegex = regexp.MustCompile(`State\s*:\s*(\S+)`)
 
 func getSSIDWindows() (string, error) {
 	cmd := exec.Command("cmd", "/c", "netsh", "wlan", "show", "interfaces")
@@ -100,10 +99,11 @@ func getSSIDWindows() (string, error) {
 		log.Printf("error getting ssid: %s", err)
 		return "", err
 	}
-	matches := windowsRegex.FindStringSubmatch(string(out))
-	if len(matches) > 1 {
-		log.Printf("ssid: %s", matches[1])
-		return matches[1], nil
+	matchesSsid := windowsSsidRegex.FindStringSubmatch(string(out))
+	matchesConnected := windowsConnectedRegex.FindStringSubmatch(string(out))
+
+	if len(matchesSsid) > 1 && len(matchesConnected) > 1 && matchesConnected[1] == "connected" {
+		return matchesSsid[1], nil
 	}
 	return "", errors.New("ssid cannot be determined")
 }

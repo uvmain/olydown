@@ -1,21 +1,19 @@
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue'
-import { GetSSID, PopulateImages } from '../wailsjs/go/main/App'
+import { computed, onMounted, ref, watch } from 'vue'
+import { GetDcimFolder, PopulateImages } from '../wailsjs/go/main/App'
 import PhotoThumbnail from './components/PhotoThumbnail.vue'
 import Button from './components/Button.vue'
 import DirectorySelector from './components/DirectorySelector.vue'
+import { useLocalStorage } from '@vueuse/core'
 
-const imageList = ref()
-const ssid = ref()
+const dcimFolder = useLocalStorage('dcimFolder', '')
+const imageList = ref<string[]>([])
+const ssid = ref<string>('')
 
 async function getImageList() {
+  imageList.value = []
   const result = await PopulateImages()
   imageList.value = result
-}
-
-async function getSSID() {
-  const result = await GetSSID()
-  ssid.value = result
 }
 
 onMounted(async () => {
@@ -24,6 +22,16 @@ onMounted(async () => {
   })
 })
 
+const wifiClass = computed(() => {
+  return ssid.value.startsWith('E-M') ? 'text-okay-600' : 'text-warning-600'
+})
+
+watch(ssid, async (newSsid) => {
+  if (newSsid.startsWith('E-M')) {
+    await getImageList()
+    dcimFolder.value = await GetDcimFolder()
+  }
+})
 
 </script>
 
@@ -32,11 +40,13 @@ onMounted(async () => {
     <div class="p-3 flex flex-col gap-2">
       <DirectorySelector />
       <div class="grid grid-cols-2 gap-2">
-        <Button label="Get Image List" @clicked="getImageList" />
-        <Button label="GetSSID" @clicked="getSSID"/>
+        <Button label="Refresh Thumbnails" @clicked="getImageList" />
+        <div :class="wifiClass">
+          <icon-material-symbols-light:wifi class="px-2"/>
+          <span>{{ ssid }}</span>
+        </div>
       </div>
-      {{ ssid }}
-      <div v-if="imageList" class="flex flex-wrap gap-x-2 gap-y-1">
+      <div v-if="imageList" class="flex flex-wrap gap-x-2 gap-y-1 overflow-y-scroll">
         <PhotoThumbnail v-for="path, index in imageList" :key="index" :filename="path" />
       </div>
     </div>
