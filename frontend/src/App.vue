@@ -1,36 +1,44 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
-import { GetImageScreennail, PopulateImages } from '../wailsjs/go/main/App'
+import { onMounted, ref } from 'vue'
+import { GetSSID, PopulateImages } from '../wailsjs/go/main/App'
+import PhotoThumbnail from './components/PhotoThumbnail.vue'
+import Button from './components/Button.vue'
+import DirectorySelector from './components/DirectorySelector.vue'
 
 const imageList = ref()
-const screennail = ref()
-const orientation = ref()
+const ssid = ref()
 
 async function getImageList() {
   const result = await PopulateImages()
   imageList.value = result
 }
 
-async function getScreennail(filename: string) {
-  const response = await GetImageScreennail(filename)
-  const base64String = response.Base64string
-  orientation.value = response.Orientation
-  screennail.value = `data:image/jpeg;base64,${base64String}`
+async function getSSID() {
+  const result = await GetSSID()
+  ssid.value = result
 }
 
-const rotationClass = computed(() => {
-  return orientation.value == "90" ? "rotate-270" : ""
+onMounted(async () => {
+  await (window as any).window.runtime.EventsOn('ssid:update', (newSsid: string) => {
+    ssid.value = newSsid
+  })
 })
+
+
 </script>
 
 <template>
-  <div class="bg-neutral h-screen w-screen">
+  <div class="bg-neutral-300 h-screen w-screen">
     <div class="p-3 flex flex-col gap-2">
-      <button class="button mr-auto" @click="getImageList">Get Image List</button>
-      <div class="flex flex-wrap gap-2">
-        <button class="button h-8 w-30" v-if="imageList" v-for="path, index in imageList" :key="index" @click="getScreennail(path)">{{ path }}</button>
+      <DirectorySelector />
+      <div class="grid grid-cols-2 gap-2">
+        <Button label="Get Image List" @clicked="getImageList" />
+        <Button label="GetSSID" @clicked="getSSID"/>
       </div>
-      <img v-if="screennail" :src="screennail" alt="Screennail" class="w-9/10 object-cover" :class="rotationClass" />
+      {{ ssid }}
+      <div v-if="imageList" class="flex flex-wrap gap-x-2 gap-y-1">
+        <PhotoThumbnail v-for="path, index in imageList" :key="index" :filename="path" />
+      </div>
     </div>
   </div>
 </template>

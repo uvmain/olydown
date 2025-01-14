@@ -6,13 +6,20 @@
     "words": [
         "assetserver",
         "dcim",
+        "Dialog",
+        "getairportnetwork",
+        "iwgetid",
+        "netsh",
+        "networksetup",
         "olydown",
         "Screennail",
         "Unfonts",
         "unocss",
         "unplugin",
+        "vueuse",
         "wailsapp",
-        "wailsjs"
+        "wailsjs",
+        "wlan"
     ],
     "ignoreWords": [
         "outputfilename"

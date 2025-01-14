@@ -84,9 +84,9 @@ func GetImageList() ([]string, error) {
 	return imageList, nil
 }
 
-func GetImageScreennail(filename string) (types.ImageResponse, error) {
+func GetImageThumbnail(filename string) (types.ImageResponse, error) {
 	dcimFolder, _ := getDcimFolder()
-	url := fmt.Sprintf("http://192.168.0.10/get_screennail.cgi?DIR=/DCIM/%s/%s", dcimFolder, filename)
+	url := fmt.Sprintf("http://192.168.0.10/get_thumbnail.cgi?DIR=/DCIM/%s/%s", dcimFolder, filename)
 	response, err := fetchBytes(url)
 
 	if err != nil {
