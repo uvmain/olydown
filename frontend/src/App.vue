@@ -18,9 +18,16 @@ const failCount = ref(0)
 const skippedCount = ref(0)
 
 async function getImageList() {
+  resetCounts()
   imageList.value = []
   const result = await PopulateImages()
   imageList.value = result
+}
+
+function resetCounts() {
+  skippedCount.value = 0
+  failCount.value = 0
+  successCount.value = 0
 }
 
 async function handleDirectorySelection() {
@@ -35,6 +42,8 @@ async function handleDirectorySelection() {
 }
 
 async function downloadImages() {
+  downloading.value = true
+  resetCounts()
   imageList.value.forEach(async (filename) => {
     const { Done, Skipped } = await DownloadFile(filename, cachedSaveLocation.value)
     if (Done) {
@@ -70,7 +79,7 @@ const downloadingText = computed(() => {
 })
 
 const pendingCount = computed(() => {
-  return imageList.value.length - successCount.value - failCount.value
+  return imageList.value.length - successCount.value - failCount.value - skippedCount.value
 })
 
 </script>
@@ -80,29 +89,31 @@ const pendingCount = computed(() => {
     <div class="p-3 flex flex-col gap-2">
       <div class="flex flex-wrap gap-2">
         <Button @clicked="getImageList" :disabled="!dcimFolder">
-          Refresh Thumbnails
+          Refresh from camera
         </Button>
         <Button @click="handleDirectorySelection">
           <span>Selected Folder: {{ cachedSaveLocation }}</span>
-        </Button>
-        <Button @click="downloadImages" :disabled="(!dcimFolder && imageList.length < 1) || downloading">
-          <span>{{ downloadingText }}</span>
         </Button>
         <Button @clicked="toggleDark()">
           <icon-material-symbols-light:dark-mode-outline v-if="isDark" />
           <icon-material-symbols-light:light-mode-outline v-else />
         </Button>
-        <Button @clicked="getImageList" :good="ssid.startsWith('uv')">
+        <Button :good="ssid.startsWith('uv')">
           <icon-material-symbols-light:wifi class="pr-2"/>
           <span>{{ ssid }}</span>
         </Button>
       </div>
-      <Button v-if="failCount > 0 || successCount > 0">
-        <icon-material-symbols-light:check-circle class="pr-2 text-green" v-if="failCount === 0 && successCount > 0" />
-        <icon-material-symbols-light:warning class="pr-2 text-orange" v-if="failCount > 0 && successCount > 0" />
-        <icon-material-symbols-light:error class="pr-2 text-red" v-if="failCount > 0 && successCount === 0" />
-        <span>Pending: {{ pendingCount }}, Success: {{ successCount }}, Failed: {{ failCount }}, Skipped: {{ skippedCount }}</span>
-      </Button>
+      <div class="flex flex-wrap gap-2">
+        <Button v-if="(skippedCount + failCount + successCount + pendingCount) > 0">
+          <icon-material-symbols-light:check-circle class="pr-2 text-green" v-if="failCount === 0 && successCount > 0" />
+          <icon-material-symbols-light:warning class="pr-2 text-orange" v-if="failCount > 0 && successCount > 0" />
+          <icon-material-symbols-light:error class="pr-2 text-red" v-if="failCount > 0 && successCount === 0" />
+          <span>Pending: {{ pendingCount }}, Success: {{ successCount }}, Failed: {{ failCount }}, Skipped: {{ skippedCount }}</span>
+        </Button>
+        <Button @click="downloadImages" :disabled="(!dcimFolder && imageList.length < 1) || downloading">
+          <span>{{ downloadingText }}</span>
+        </Button>
+      </div>
       <div v-if="imageList.length > 0" class="flex-1 overflow-y-scroll p-4">
         <div class="flex flex-wrap gap-4">
           <PhotoThumbnail v-for="path, index in imageList" :key="index" :filename="path" />
