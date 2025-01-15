@@ -23,7 +23,7 @@ const imageSource = computed(() => {
       :src="imageSource"
       :alt="filename"
       onerror="this.onerror=null;this.src='./assets/default-image.jpg';"
-      class="cursor-pointer border-2 border-white border-solid object-cover dark:border-neutral-500 size-40 orientation"
+      class="cursor-pointer border-2 border-white border-solid object-cover dark:border-neutral-500 size-30 orientation"
     />
     <p class="absolute left-2 bottom-0 text-white bg-neutral-600">{{ filename }}</p>
   </div>

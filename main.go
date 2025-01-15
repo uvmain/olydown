@@ -98,12 +98,23 @@ func (b *App) GetDcimFolder() (string, error) {
 	return response, nil
 }
 
-func (b *App) DownloadFile(filename string, destinationFolder string) (bool, error) {
+type DownloadFileResponse struct {
+	Done    bool
+	Skipped bool
+}
+
+func (b *App) DownloadFile(filename string, destinationFolder string) DownloadFileResponse {
 	log.Print("download function called")
-	response, err := download.DownloadFile(filename, destinationFolder)
+	done, skipped, err := download.DownloadFile(filename, destinationFolder)
 	if err != nil {
 		log.Printf("error downloading file: %s", err)
-		return false, err
+		return DownloadFileResponse{
+			Done:    false,
+			Skipped: false,
+		}
 	}
-	return response, nil
+	return DownloadFileResponse{
+		Done:    done,
+		Skipped: skipped,
+	}
 }
