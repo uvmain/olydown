@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { DownloadFile, GetDcimFolder, PopulateImages } from '../wailsjs/go/main/App'
 import PhotoThumbnail from './components/PhotoThumbnail.vue'
 import Button from './components/Button.vue'
@@ -20,8 +20,6 @@ async function getImageList() {
   imageList.value = []
   const result = await PopulateImages()
   imageList.value = result
-  successCount.value = 0
-  failCount.value = 0
 }
 
 async function handleDirectorySelection() {
@@ -40,7 +38,6 @@ async function downloadImages() {
   successCount.value = 0
   failCount.value = 0
 
-
   imageList.value.forEach(async (filename) => {
     const success = await DownloadFile(filename, cachedSaveLocation.value)
     if (success) {
@@ -55,6 +52,7 @@ async function downloadImages() {
 }
 
 onMounted(async () => {
+  downloading.value = false
   await (window as any).window.runtime.EventsOn('ssid:update', (newSsid: string) => {
     ssid.value = newSsid
   })
@@ -65,6 +63,10 @@ watch(ssid, async (newSsid) => {
     await getImageList()
     dcimFolder.value = await GetDcimFolder()
   }
+})
+
+const downloadingText = computed(() => {
+  return downloading.value ? 'Downloading..' : 'Download Images'
 })
 
 </script>
@@ -79,8 +81,8 @@ watch(ssid, async (newSsid) => {
         <Button @click="handleDirectorySelection">
           <span>Selected Folder: {{ cachedSaveLocation }}</span>
         </Button>
-        <Button @click="downloadImages" :disabled="!dcimFolder && imageList.length < 1 && !downloading">
-          <span>Download Images</span>
+        <Button @click="downloadImages" :disabled="(!dcimFolder && imageList.length < 1) || downloading">
+          <span>{{ downloadingText }}</span>
         </Button>
         <Button @clicked="toggleDark()">
           <icon-material-symbols-light:dark-mode-outline v-if="isDark" />
@@ -92,13 +94,15 @@ watch(ssid, async (newSsid) => {
         </Button>
       </div>
       <Button v-if="failCount > 0 || successCount > 0">
-        <icon-material-symbols-light:check-circle class="pr-2 text-green" v-if="failCount > 0 && successCount === 0" />
+        <icon-material-symbols-light:check-circle class="pr-2 text-green" v-if="failCount === 0 && successCount > 0" />
         <icon-material-symbols-light:warning class="pr-2 text-orange" v-if="failCount > 0 && successCount > 0" />
-        <icon-material-symbols-light:error class="pr-2 text-red" v-if="failCount === 0 && successCount > 0" />
+        <icon-material-symbols-light:error class="pr-2 text-red" v-if="failCount > 0 && successCount === 0" />
         <span>Success: {{ successCount }}, Failed: {{ failCount }}</span>
       </Button>
-      <div v-if="imageList" class="overflow-y-scroll grid gap-2">
-        <PhotoThumbnail v-for="path, index in imageList" :key="index" :filename="path" />
+      <div v-if="imageList.length > 0" class="flex-1 overflow-y-scroll p-4">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          <PhotoThumbnail v-for="path, index in imageList" :key="index" :filename="path" />
+        </div>
       </div>
     </div>
   </div>

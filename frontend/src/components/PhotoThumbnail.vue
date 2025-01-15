@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { useLocalStorage } from '@vueuse/core'
+import { computed } from 'vue'
+import { useSessionStorage } from '@vueuse/core'
 
 const props = defineProps({
   filename: { type: String, required: true },
 })
 
-const dcimFolder = useLocalStorage('dcimFolder', '')
+const dcimFolder = useSessionStorage('dcimFolder', '')
 
 const imageSource = computed(() => {
-  // return dcimFolder.value ? `http://192.168.0.10/get_thumbnail.cgi?DIR=/DCIM/${dcimFolder.value}/${props.filename}` : './assets/default-image.jpg'
+  return dcimFolder.value ? `http://192.168.0.10/get_thumbnail.cgi?DIR=/DCIM/${dcimFolder.value}/${props.filename}` : './assets/default-image.jpg'
   // thumbnail does not include exif data, so we get a resized 1024 image instead
-  return dcimFolder.value ? `http://192.168.0.10/get_resizeimg.cgi?DIR=/DCIM/${dcimFolder.value}/${props.filename}&size=1024` : './assets/default-image.jpg'
+  // return dcimFolder.value ? `http://192.168.0.10/get_resizeimg.cgi?DIR=/DCIM/${dcimFolder.value}/${props.filename}&size=1024` : './assets/default-image.jpg'
 })
 
 </script>

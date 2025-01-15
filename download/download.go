@@ -7,12 +7,17 @@ import (
 	"net/http"
 	"olydown/logic"
 	"os"
-	"path"
+	"path/filepath"
 )
 
 func DownloadFile(filename string, destinationFolder string) (done bool, err error) {
 
-	filePath := path.Join(destinationFolder, filename)
+	filePath := filepath.Join(destinationFolder, filename)
+
+	if _, err := os.Stat(filePath); os.IsExist(err) {
+		log.Printf("File %s already exists", filePath)
+		return false, err
+	}
 
 	out, err := os.Create(filePath)
 	if err != nil {
