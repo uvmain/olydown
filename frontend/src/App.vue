@@ -12,11 +12,16 @@ const imageList = ref<string[]>([])
 const ssid = ref<string>('')
 const isDark = useDark()
 const toggleDark = useToggle(isDark)
+const downloading = ref(false)
+const successCount = ref(0)
+const failCount = ref(0)
 
 async function getImageList() {
   imageList.value = []
   const result = await PopulateImages()
   imageList.value = result
+  successCount.value = 0
+  failCount.value = 0
 }
 
 async function handleDirectorySelection() {
@@ -31,9 +36,22 @@ async function handleDirectorySelection() {
 }
 
 async function downloadImages() {
-  for (const filename in imageList.value) {
-    await DownloadFile(filename, cachedSaveLocation.value)
-  }
+  downloading.value = true
+  successCount.value = 0
+  failCount.value = 0
+
+
+  imageList.value.forEach(async (filename) => {
+    const success = await DownloadFile(filename, cachedSaveLocation.value)
+    if (success) {
+      successCount.value += 1
+    }
+    else {
+      failCount.value += 1
+    }
+  })
+
+  downloading.value = false
 }
 
 onMounted(async () => {
@@ -54,9 +72,15 @@ watch(ssid, async (newSsid) => {
 <template>
   <div class="bg-light dark:bg-dark text-dark dark:text-light h-screen w-screen">
     <div class="p-3 flex flex-col gap-2">
-      <div class="flex flex-row gap-2">
+      <div class="flex flex-wrap gap-2">
         <Button @clicked="getImageList" :disabled="!dcimFolder">
           Refresh Thumbnails
+        </Button>
+        <Button @click="handleDirectorySelection">
+          <span>Selected Folder: {{ cachedSaveLocation }}</span>
+        </Button>
+        <Button @click="downloadImages" :disabled="!dcimFolder && imageList.length < 1 && !downloading">
+          <span>Download Images</span>
         </Button>
         <Button @clicked="toggleDark()">
           <icon-material-symbols-light:dark-mode-outline v-if="isDark" />
@@ -67,13 +91,13 @@ watch(ssid, async (newSsid) => {
           <span>{{ ssid }}</span>
         </Button>
       </div>
-      <Button @click="handleDirectorySelection">
-        <span>Selected Folder: {{ cachedSaveLocation }}</span>
+      <Button v-if="failCount > 0 || successCount > 0">
+        <icon-material-symbols-light:check-circle class="pr-2 text-green" v-if="failCount > 0 && successCount === 0" />
+        <icon-material-symbols-light:warning class="pr-2 text-orange" v-if="failCount > 0 && successCount > 0" />
+        <icon-material-symbols-light:error class="pr-2 text-red" v-if="failCount === 0 && successCount > 0" />
+        <span>Success: {{ successCount }}, Failed: {{ failCount }}</span>
       </Button>
-      <Button @click="downloadImages" :disabled="!dcimFolder && imageList.length < 1">
-        <span>Download Images</span>
-      </Button>
-      <div v-if="imageList" class="flex flex-wrap gap-x-2 gap-y-1 overflow-y-scroll">
+      <div v-if="imageList" class="overflow-y-scroll grid gap-2">
         <PhotoThumbnail v-for="path, index in imageList" :key="index" :filename="path" />
       </div>
     </div>

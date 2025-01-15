@@ -98,9 +98,11 @@ func (b *App) GetDcimFolder() (string, error) {
 	return response, nil
 }
 
-func (b *App) DownloadFile(filename string, destination string) (bool, error) {
-	response, err := download.DownloadFile(filename, destination)
+func (b *App) DownloadFile(filename string, destinationFolder string) (bool, error) {
+	log.Print("download function called")
+	response, err := download.DownloadFile(filename, destinationFolder)
 	if err != nil {
+		log.Printf("error downloading file: %s", err)
 		return false, err
 	}
 	return response, nil

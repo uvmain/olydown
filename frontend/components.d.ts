@@ -8,8 +8,11 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     Button: typeof import('./src/components/Button.vue')['default']
+    'IconMaterialSymbolsLight:checkCircle': typeof import('~icons/material-symbols-light/check-circle')['default']
     'IconMaterialSymbolsLight:darkModeOutline': typeof import('~icons/material-symbols-light/dark-mode-outline')['default']
+    'IconMaterialSymbolsLight:error': typeof import('~icons/material-symbols-light/error')['default']
     'IconMaterialSymbolsLight:lightModeOutline': typeof import('~icons/material-symbols-light/light-mode-outline')['default']
+    'IconMaterialSymbolsLight:warning': typeof import('~icons/material-symbols-light/warning')['default']
     'IconMaterialSymbolsLight:wifi': typeof import('~icons/material-symbols-light/wifi')['default']
     PhotoThumbnail: typeof import('./src/components/PhotoThumbnail.vue')['default']
   }
