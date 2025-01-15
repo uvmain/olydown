@@ -8,7 +8,8 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     Button: typeof import('./src/components/Button.vue')['default']
-    DirectorySelector: typeof import('./src/components/DirectorySelector.vue')['default']
+    'IconMaterialSymbolsLight:darkModeOutline': typeof import('~icons/material-symbols-light/dark-mode-outline')['default']
+    'IconMaterialSymbolsLight:lightModeOutline': typeof import('~icons/material-symbols-light/light-mode-outline')['default']
     'IconMaterialSymbolsLight:wifi': typeof import('~icons/material-symbols-light/wifi')['default']
     PhotoThumbnail: typeof import('./src/components/PhotoThumbnail.vue')['default']
   }

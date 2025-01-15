@@ -1,4 +1,5 @@
 import { defineConfig } from 'unocss'
+import { colors } from 'unocss/preset-mini'
 
 export default defineConfig({
   shortcuts: {
@@ -6,12 +7,12 @@ export default defineConfig({
   },
   theme: {
     colors: {
-      warning: {
+      bad: {
         600: '#b86944'
       },
       okay: {
         600: '#2EA169'
-      }
+      },
     },
   },
 })

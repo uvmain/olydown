@@ -5,6 +5,7 @@ import (
 	"embed"
 	"fmt"
 	"log"
+	"olydown/download"
 	"olydown/logic"
 	"olydown/network"
 	"olydown/types"
@@ -93,6 +94,14 @@ func (b *App) GetDcimFolder() (string, error) {
 	response, err := logic.GetDcimFolder()
 	if err != nil {
 		return "", err
+	}
+	return response, nil
+}
+
+func (b *App) DownloadFile(filename string, destination string) (bool, error) {
+	response, err := download.DownloadFile(filename, destination)
+	if err != nil {
+		return false, err
 	}
 	return response, nil
 }
